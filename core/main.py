@@ -50,7 +50,7 @@ def delete_expense(expense_id: int):
     for item in expenses_list:
         if item["id"] == expense_id:
             expenses_list.remove(item)
-            expenses_list[:] = [{"id": i+1, "description": n["description"]} for i, n in enumerate(expenses_list)]
+            expenses_list[:] = [{"id": i+1, "description": n["description"], "amount": n["amount"]} for i, n in enumerate(expenses_list)]
             return JSONResponse(content={"detail": f"{item} deleted!"}, status_code=status.HTTP_200_OK)
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="object not found")
