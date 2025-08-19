@@ -2,30 +2,7 @@
 from fastapi import FastAPI
 
 
-
-"""
-@app.on_event("startup")
-async def startup_event():
-    print("starting on application.")
-
-
-@app.on_event("shutdown")
-async def startup_event():
-    print("shutting down application.")
-""" 
-
-
-from contextlib import asynccontextmanager
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    print("Application startup.")
-    # e.g. connect DB or Cache Initialization
-    yield
-    # e.g. close DB or clear source 
-    print("Application shutdwon.")
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 names_list = [
     {"id": 1, "name": "ali"},
@@ -81,9 +58,9 @@ def retieve_name_list(q: str | None = Query(alias="search", description="it will
     return names_list
 
 
-from fastapi import status, HTTPException, Form, Body
+from fastapi import status, HTTPException
 @app.post("/names", status_code=status.HTTP_201_CREATED)
-def create_name(name: str = Body(embed=True)):
+def create_name(name: str):
     id_for_new_name = len(names_list) + 1
     names_list.append({"id": id_for_new_name, "name": name})
     return {"detail": "new name created", "new name": names_list[-1]}
@@ -100,7 +77,7 @@ def retrieve_name_detail(name_id: int = Path(alias="name id", title="Name ID", d
 
 
 @app.put("/names/{name_id}", status_code=status.HTTP_200_OK)
-def update_name_detail(name_id: int = Path() , name: str = Form()):
+def update_name_detail(name_id: int, name: str):
     for item in names_list:
         if item["id"] == name_id:
             item["name"] = name
@@ -126,25 +103,3 @@ def delete_name(name_id: int):
 def root():
     msg = {"message": "Hello World!"}
     return JSONResponse(content=msg, status_code=status.HTTP_202_ACCEPTED)
-
-
-from fastapi import File, UploadFile
-@app.post("/file")
-def file(file: bytes = File(...)):
-    print(file)
-    return {"file_size" : len(file)}
-
-
-@app.post("/uploadfile")
-async def upload_file(file: UploadFile = File(...)):
-    msg = await file.read()
-    print(file.__dict__)
-    return {"filename" : file.filename, "content_type": file.content_type, "file_size": len(msg)}
-
-
-from typing import List
-@app.post("/uploadmultifile")
-async def upload_multi_file(files: List[UploadFile]):
-    return [{"filename" : file.filename, "content_type": file.content_type} for file in files]
-
-

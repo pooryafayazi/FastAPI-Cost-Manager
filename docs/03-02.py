@@ -1,14 +1,17 @@
-add these code in the main.py for first steps
-#main.py
+# add these code in the main.py for first steps
+# main.py
+import uvicorn
 from fastapi import FastAPI
 
 app = FastAPI()
 
+
 @app.get("/")
 def root():
-    return {"message" : "Hello World!"}
+    return {"message": "Hello World!"}
 
 
+'''
 command >
 core\fastapi dev main.py
 or
@@ -18,18 +21,19 @@ so now we can access to 127.0.0.1:8000 and 127.0.0.1:8000/docs for swagger
 
 or
 change main.py to
-#main.py
-from fastapi import FastAPI
-import uvicorn
+'''
+# main.py
 
 
 app = FastAPI()
 
+
 @app.get("/")
 def root():
-    return {"message" : "Hello World!"}
+    return {"message": "Hello World!"}
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
-now we can access to 127.0.0.1:8000 and 127.0.0.1:8000/docs for swagger
+# now we can access to 127.0.0.1:8000 and 127.0.0.1:8000/docs for swagger

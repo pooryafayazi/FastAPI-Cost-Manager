@@ -2,30 +2,7 @@
 from fastapi import FastAPI
 
 
-
-"""
-@app.on_event("startup")
-async def startup_event():
-    print("starting on application.")
-
-
-@app.on_event("shutdown")
-async def startup_event():
-    print("shutting down application.")
-""" 
-
-
-from contextlib import asynccontextmanager
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    print("Application startup.")
-    # e.g. connect DB or Cache Initialization
-    yield
-    # e.g. close DB or clear source 
-    print("Application shutdwon.")
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 names_list = [
     {"id": 1, "name": "ali"},
@@ -146,5 +123,4 @@ from typing import List
 @app.post("/uploadmultifile")
 async def upload_multi_file(files: List[UploadFile]):
     return [{"filename" : file.filename, "content_type": file.content_type} for file in files]
-
 
