@@ -23,6 +23,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+"""
 class Expense(Base):
     __tablename__ = "expenses"
 
@@ -37,7 +38,7 @@ class Expense(Base):
 Base.metadata.create_all(engine)
 
 session = SessionLocal()
-
+"""
 
 # inserting data
 """
@@ -329,5 +330,239 @@ class SampleModel(Base):
     binary_field = Column(LargeBinary)
 """
 
+
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text
+from sqlalchemy.orm import relationship
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(30))
+    email = Column(String)
+    password = Column(String)
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+    
+    # addresses = relationship("Address", back_populates="user")
+    addresses = relationship("Address", backref="user")
+    
+    # رابطه One-to-One با Profile
+    profile = relationship("Profile", backref="user", uselist=False)
+    
+    posts = relationship("Post", backref ="user")
+    courses = relationship("Course", secondary= "enrollments", back_populates="attendess")
+    def __repr__(self):
+        return f"User(id={self.id}, username={self.username}, email={self.email})"
+
+
+class Address(Base):
+    __tablename__ = "addresses"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    city = Column(String)
+    state = Column(String)
+    zip_code = Column(String)
+
+    # user = relationship("User", back_populates="addresses")
+    
+    def __repr__(self):
+        return f"Address(id={self.id}, user_id={self.user_id}, city={self.city}, state={self.state}, zip_code={self.zip_code})"
+
+
+# Base.metadata.create_all(engine)
+
+# session = SessionLocal()
+
+# --- افزودن یک کاربر جدید ---
+# session.add(User(username="pooryafayazi", email="poorya152@gmail.com", password="123"))
+# session.commit()
+
+# گرفتن یوزر
+# user = session.query(User).filter_by(username="pooryafayazi").one_or_none()
+
+# --- افزودن آدرس‌ها به کاربر ---
+# addresses = [
+    # Address(user_id=user.id, city="karaj", state="alborz", zip_code="123"),
+    # Address(user_id=user.id, city="tehran", state="tehran", zip_code="123")
+# ]
+# session.add_all(addresses)
+# session.commit()
+
+# دسترسی به آدرس‌ها از طریق رابطه
+# print(user.addresses)
+
+# گرفتن آدرس خاص
+# address = session.query(Address).filter_by(user_id=user.id, city="karaj").one_or_none()
+# print(address.user.username)
+
+
+class Profile(Base):
+    __tablename__ = "profiles"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    first_name = Column(String)
+    last_name = Column(String)
+    bio = Column(Text, nullable=True)
+
+    def __repr__(self):
+        return f"Profile(id={self.id}, first_name={self.first_name}, last_name={self.last_name})"
+
+# Base.metadata.create_all(engine)
+
+# session = SessionLocal()
+
+
+# گرفتن یک کاربر
+# user = session.query(User).filter_by(username="pooryafayazi").one_or_none()
+
+# اگر کاربر وجود داشت، می‌تونیم پروفایل براش بسازیم
+# session.add(Profile(user_id=user.id, first_name="Poorya", last_name="Fayazi", bio="Developer"))
+# session.commit()
+
+# print(user.profile.first_name)
+
+
+
+from sqlalchemy import DateTime
+from datetime import datetime
+
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"))   # ارتباط با جدول users
+    title = Column(String)
+    content = Column(Text)
+
+    created_date = Column(DateTime, default=datetime.now)
+    # or
+    # from sqlalchemy.sql import func
+    # created_date = Column(DateTime, default=func.now())    
+    updated_date = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    comments = relationship("Comment", backref="post")
+
+    def __repr__(self):
+        return f"Post(id={self.id}, title={self.title})"
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    post_id = Column(Integer, ForeignKey("posts.id"))
+    parent_id = Column(Integer, ForeignKey("comments.id"), nullable=True)  # برای ریپلای به کامنت دیگر
+
+    content = Column(Text)
+    created_date = Column(DateTime, default=datetime.now)
+
+    # روابط
+    # parent = relationship("Comment", back_populates="children", remote_side=[id])
+    # children = relationship("Comment", back_populates="parent", remote_side=[parent_id])
+    
+    # or
+    from sqlalchemy.orm import backref
+    children = relationship("Comment", backref=backref("parent", remote_side=[id]))
+
+    def __repr__(self):
+        return f"Comment(id={self.id}, post_id={self.post_id}, user_id={self.user_id} parent id = {self.parent_id})"
+
+
+
+
+# Base.metadata.create_all(engine)
+
+# session = SessionLocal()
+
+
+# user = session.query(User).filter_by(username="pooryafayazi").one_or_none()
+
+# ساخت یک پست جدید برای کاربر
+# session.add(Post(user_id=user.id, title="example", content="post content"))
+# session.commit()
+
+
+# گرفتن اولین پست کاربر
+# post = user.posts[0]
+
+# اضافه کردن یک کامنت به همون پست
+# session.add(Comment(user_id=user.id, post_id=post.id, content="this is a parent comment"))
+# session.commit()
+
+# parent_comment = post.comments[0]
+# print(parent_comment)
+
+# session.add(Comment(user_id=user.id, post_id=post.id, parent_id=parent_comment.id, content="this is a replay 2 comment"))
+# session.commit()
+
+
+# print(post.comments)
+
+
+# comments = session.query(Comment).filter_by(post_id=post.id, parent_id=None).all()
+# print(comments)
+
+
+# comments = session.query(Comment).filter_by(post_id=post.id, parent_id=None).all()
+# [print(comment) for comment in comments]
+# [print(comment.children) for comment in comments]
+
+
+from sqlalchemy import Table, UniqueConstraint
+
+
+enrollments = Table("enrollments", Base.metadata,
+                    Column("id", Integer, primary_key=True, autoincrement=True),
+                    Column("user_id", Integer, ForeignKey("users.id")),
+                    Column("course_id", Integer, ForeignKey("courses.id")),
+                    Column("enrolled_date", DateTime, default=datetime.now),
+                    UniqueConstraint("user_id", "course_id", name="uniqque_user_course_enrolled")
+                )
+
+
+class Course(Base):
+    __tablename__ = "courses"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String)
+    description = Column(Text)
+
+    created_date = Column(DateTime, default=datetime.now)
+
+    # رابطه Many-to-Many با User
+    attendess = relationship("User", secondary=enrollments, back_populates="courses")
+    
+    def __repr__(self):
+        return f"Course(id={self.id}, title={self.title})"
+
+
+Base.metadata.create_all(engine)
+
+session = SessionLocal()
+
+user = session.query(User).filter_by(username="pooryafayazi").one_or_none()
+
+
+# اضافه کردن یک دوره جدید
+# session.add(Course(title="Python", description="this is a python course"))
+# session.commit()
+
+
+# پیدا کردن دوره
+course = session.query(Course).filter_by(title="Python").one()
+
+# اضافه کردن کاربر به دوره
+# course.attendess.append(user)   # چون در مدل Course اسم رابطه رو users گذاشتیم
+# session.commit()
+
+
+print(course.attendess)
+print(user.courses)
 
 

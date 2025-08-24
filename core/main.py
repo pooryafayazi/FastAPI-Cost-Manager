@@ -2,25 +2,27 @@
 from fastapi import FastAPI, status, HTTPException, Body, Path, Query, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from db import get_db
+from db import get_db, Base, engine
 from models import Expense
-
+from contextlib import asynccontextmanager
 
 app = FastAPI()
 
 expenses_list = []
 
 
-app = FastAPI(title="Expense Manager (DB-backed)")
-
 # Creating tables at startup
-"""
-@app.on_event("startup")
-def on_startup() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
-"""
+    yield
+    print("application shutdown")
 
-# CRUD with DB
+
+app = FastAPI(lifespan=lifespan, title="Expense Manager (DB-backed)")
+
+
+# ++++ CRUD with DB ++++
 
 @app.get("/expenses")
 def retrieve_expense_list(q: str | None = Query(default=None, alias="search", description="case-insensitive match on description", max_length=50), db: Session = Depends(get_db)):
@@ -70,10 +72,12 @@ def create_expense(description: str = Body(...), amount:int = Body(...)):
 
 @app.get("/expenses/{expense_id}")
 def retrieve_expense_detail(expense_id: int = Path(..., title="Expense ID"), db: Session = Depends(get_db)):
+    # exp = db.query(Expense).filter_by(id=expense_id).one_or_none()
     exp = db.get(Expense, expense_id)
     if not exp:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="object not found")
-    return {"id": exp.id, "description": exp.description, "amount": exp.amount}
+    # return {"id": exp.id, "description": exp.description, "amount": exp.amount}
+    return exp
 
 
 """
@@ -88,6 +92,7 @@ def retrieve_expense_detail(expense_id: int = Path(..., title="Expense ID", desc
 
 @app.put("/expenses/{expense_id}", status_code=status.HTTP_200_OK)
 def update_expense_detail(expense_id: int = Path(...), description: str = Body(..., embed=True, min_length=3, max_length=50), amount: int = Body(..., embed=True, gt=0, lt=10_000_000_000), db: Session = Depends(get_db)):
+    # exp = db.query(Expense).filter_by(id=expense_id).one_or_none()    
     exp = db.get(Expense, expense_id)
     if not exp:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="object not found")
@@ -96,7 +101,8 @@ def update_expense_detail(expense_id: int = Path(...), description: str = Body(.
     exp.amount = amount
     db.commit()
     db.refresh(exp)
-    return {"detail": "expense updated", "expense": {"id": exp.id, "description": exp.description, "amount": exp.amount}}
+    # return {"detail": "expense updated", "expense": {"id": exp.id, "description": exp.description, "amount": exp.amount}}
+    return {"detail": "expense updated", "expense": exp}
 
 
 """
