@@ -1,9 +1,12 @@
 # core/main.py
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from fastapi.security import HTTPBearer
+from fastapi import FastAPI, Depends
+from auth.jwt_auth import get_authenticated_user
 from expenses.routs import router as expenses_router
 from users.routs import router as users_router
 from i18n.i18n import I18n, get_translator
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -12,7 +15,16 @@ async def lifespan(app: FastAPI):
     print("Application Shutdown")
 
 
-tags_metadata = [{"name": "expenses", "descriptions": "Operations related to expense management", "externalDocs": {"description": "More about expenses", "url": "http://127.0.0.1:8000/docs/expenses"}}]
+tags_metadata = [
+    {
+        "name": "expenses",
+        "descriptions": "Operations related to expense management",
+        "externalDocs": {
+            "description": "More about expenses",
+            "url": "http://127.0.0.1:8000/docs/expenses",
+        },
+    }
+]
 
 
 app = FastAPI(
@@ -37,21 +49,19 @@ app.include_router(users_router, prefix="/api/v1")
 
 
 # +++++++++++ JWT +++++++++++
-from fastapi.security import HTTPBearer
-from fastapi import Depends
-from auth.jwt_auth import get_authenticated_user
 
 security = HTTPBearer()
 
 
-@app.get("/public",)
+@app.get("/public")
 def public_rout():
     return {"detail": "this is public rout"}
 
 
-@app.get("/private",)
+@app.get("/private")
 def private_rout(user=Depends(get_authenticated_user)):
     return {"detail": "this is public rout", "username": user.username}
+
 
 @app.get("/hello")
 def hello(tr: I18n = Depends(get_translator)):

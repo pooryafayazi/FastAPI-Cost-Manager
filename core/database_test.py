@@ -11,12 +11,10 @@ SQLALCHEMY_DATABASE_URL = "sqlite:///./sqlite.db"
 
 # Example for a SQLite database
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False # only sqlite
-                  }
-    )
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}  # only sqlite
+)
 
-# sessionmake as cursor 
+# sessionmake as cursor
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # create base class for declaring tables
@@ -134,7 +132,6 @@ expenses_endingc_car = session.query(Expense).filter(Expense.description.like("%
 """
 
 
-
 """
 from sqlalchemy import or_, and_, not_
 
@@ -152,7 +149,6 @@ expenses = session.query(Expense).filter(or_(not_(Expense.description == "car"),
 """
 
 
-
 """
 from sqlalchemy import func
 # 1. Count Total Expenses
@@ -168,7 +164,6 @@ max_amount = session.query(func.max(Expense.amount)).scalar()
 min_amount = session.query(func.min(Expense.amount)).scalar()
 print(f"Max Age: {max_amount}, Min Age: {min_amount}")
 """
-
 
 
 """
@@ -223,7 +218,6 @@ session.close()
 """
 
 
-
 """
 from sqlalchemy.sql import text
 
@@ -252,7 +246,6 @@ print("Total Revenue:", result)
 """
 
 
-
 """
 # 1. محاسبه تعداد هزینه ها برای هر کاربر
 expenses_order_count = session.query(
@@ -271,7 +264,6 @@ expense_total_spent = session.query(
 for expense in expense_total_spent:
     print(f"Expense: {expense.description}, Total Spent: {expense.total_spent}")
 """
-
 
 
 """
@@ -344,15 +336,18 @@ class User(Base):
     password = Column(String)
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
-    
+
     # addresses = relationship("Address", back_populates="user")
     addresses = relationship("Address", backref="user")
-    
+
     # رابطه One-to-One با Profile
     profile = relationship("Profile", backref="user", uselist=False)
-    
-    posts = relationship("Post", backref ="user")
-    courses = relationship("Course", secondary= "enrollments", back_populates="attendess")
+
+    posts = relationship("Post", backref="user")
+    courses = relationship(
+        "Course", secondary="enrollments", back_populates="attendess"
+    )
+
     def __repr__(self):
         return f"User(id={self.id}, username={self.username}, email={self.email})"
 
@@ -367,7 +362,7 @@ class Address(Base):
     zip_code = Column(String)
 
     # user = relationship("User", back_populates="addresses")
-    
+
     def __repr__(self):
         return f"Address(id={self.id}, user_id={self.user_id}, city={self.city}, state={self.state}, zip_code={self.zip_code})"
 
@@ -385,8 +380,8 @@ class Address(Base):
 
 # --- افزودن آدرس‌ها به کاربر ---
 # addresses = [
-    # Address(user_id=user.id, city="karaj", state="alborz", zip_code="123"),
-    # Address(user_id=user.id, city="tehran", state="tehran", zip_code="123")
+# Address(user_id=user.id, city="karaj", state="alborz", zip_code="123"),
+# Address(user_id=user.id, city="tehran", state="tehran", zip_code="123")
 # ]
 # session.add_all(addresses)
 # session.commit()
@@ -411,6 +406,7 @@ class Profile(Base):
     def __repr__(self):
         return f"Profile(id={self.id}, first_name={self.first_name}, last_name={self.last_name})"
 
+
 # Base.metadata.create_all(engine)
 
 # session = SessionLocal()
@@ -426,7 +422,6 @@ class Profile(Base):
 # print(user.profile.first_name)
 
 
-
 from sqlalchemy import DateTime
 from datetime import datetime
 
@@ -435,14 +430,14 @@ class Post(Base):
     __tablename__ = "posts"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("users.id"))   # ارتباط با جدول users
+    user_id = Column(Integer, ForeignKey("users.id"))  # ارتباط با جدول users
     title = Column(String)
     content = Column(Text)
 
     created_date = Column(DateTime, default=datetime.now)
     # or
     # from sqlalchemy.sql import func
-    # created_date = Column(DateTime, default=func.now())    
+    # created_date = Column(DateTime, default=func.now())
     updated_date = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     comments = relationship("Comment", backref="post")
@@ -457,7 +452,9 @@ class Comment(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     post_id = Column(Integer, ForeignKey("posts.id"))
-    parent_id = Column(Integer, ForeignKey("comments.id"), nullable=True)  # برای ریپلای به کامنت دیگر
+    parent_id = Column(
+        Integer, ForeignKey("comments.id"), nullable=True
+    )  # برای ریپلای به کامنت دیگر
 
     content = Column(Text)
     created_date = Column(DateTime, default=datetime.now)
@@ -465,15 +462,14 @@ class Comment(Base):
     # روابط
     # parent = relationship("Comment", back_populates="children", remote_side=[id])
     # children = relationship("Comment", back_populates="parent", remote_side=[parent_id])
-    
+
     # or
     from sqlalchemy.orm import backref
+
     children = relationship("Comment", backref=backref("parent", remote_side=[id]))
 
     def __repr__(self):
         return f"Comment(id={self.id}, post_id={self.post_id}, user_id={self.user_id} parent id = {self.parent_id})"
-
-
 
 
 # Base.metadata.create_all(engine)
@@ -517,13 +513,15 @@ class Comment(Base):
 from sqlalchemy import Table, UniqueConstraint
 
 
-enrollments = Table("enrollments", Base.metadata,
-                    Column("id", Integer, primary_key=True, autoincrement=True),
-                    Column("user_id", Integer, ForeignKey("users.id")),
-                    Column("course_id", Integer, ForeignKey("courses.id")),
-                    Column("enrolled_date", DateTime, default=datetime.now),
-                    UniqueConstraint("user_id", "course_id", name="uniqque_user_course_enrolled")
-                )
+enrollments = Table(
+    "enrollments",
+    Base.metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("user_id", Integer, ForeignKey("users.id")),
+    Column("course_id", Integer, ForeignKey("courses.id")),
+    Column("enrolled_date", DateTime, default=datetime.now),
+    UniqueConstraint("user_id", "course_id", name="uniqque_user_course_enrolled"),
+)
 
 
 class Course(Base):
@@ -537,7 +535,7 @@ class Course(Base):
 
     # رابطه Many-to-Many با User
     attendess = relationship("User", secondary=enrollments, back_populates="courses")
-    
+
     def __repr__(self):
         return f"Course(id={self.id}, title={self.title})"
 
@@ -564,5 +562,3 @@ course = session.query(Course).filter_by(title="Python").one()
 
 print(course.attendess)
 print(user.courses)
-
-

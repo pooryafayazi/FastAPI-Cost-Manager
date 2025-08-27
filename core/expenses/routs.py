@@ -1,25 +1,39 @@
 # core/expenses/routs.py
-from fastapi import status, HTTPException, Path, Query, Depends
+from math import ceil
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from core.db import get_db
+from fastapi import APIRouter
+from fastapi import status, HTTPException, Path, Query, Depends
 from expenses.models import ExpenseModel
 from users.models import UserModel
-from fastapi import APIRouter
-from math import ceil
-from expenses.schemas import ExpenseCreateSchema, ExpenseUpdateSchema, ExpenseResponseSchema
+from expenses.schemas import (
+    ExpenseCreateSchema,
+    ExpenseUpdateSchema,
+    ExpenseResponseSchema,
+)
+from core.db import get_db
 from auth.jwt_cookie_auth import get_current_user_from_cookies
 from i18n.i18n import I18n, get_translator
 
 
-router = APIRouter(tags=["expenses"],)
+router = APIRouter(
+    tags=["expenses"],
+)
 
 
 # ++++ CRUD with DB ++++
 
-@router.get("/expenses",)
+
+@router.get(
+    "/expenses",
+)
 def retrieve_expense_list(
-    q: str | None = Query(default=None, alias="search", description="case-insensitive match on description", max_length=50),
+    q: str | None = Query(
+        default=None,
+        alias="search",
+        description="case-insensitive match on description",
+        max_length=50,
+    ),
     page: int = Query(1, ge=1, description="page number"),
     limit: int = Query(10, le=50, description="number of items per page"),
     db: Session = Depends(get_db),
@@ -36,19 +50,39 @@ def retrieve_expense_list(
 
     results = query.offset(offset).limit(limit).all()
 
-    return {"page": page, "total_pages": total_pages, "total_items": total_items, "next_page": page + 1 if page < total_pages else None, "prev_page": page - 1 if page > 1 else None, "result": results}
+    return {
+        "page": page,
+        "total_pages": total_pages,
+        "total_items": total_items,
+        "next_page": page + 1 if page < total_pages else None,
+        "prev_page": page - 1 if page > 1 else None,
+        "result": results,
+    }
 
 
 @router.get("/expenses/{expense_id}")
-def retrieve_expense_detail(expense_id: int = Path(..., description="Expense ID"), db: Session = Depends(get_db), user: UserModel = Depends(get_current_user_from_cookies), tr: I18n = Depends(get_translator)):
-    expense_obj = db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
+def retrieve_expense_detail(
+    expense_id: int = Path(..., description="Expense ID"),
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(get_current_user_from_cookies),
+    tr: I18n = Depends(get_translator),
+):
+    expense_obj = (
+        db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
+    )
     if not expense_obj:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=tr("common.object_not_found"))
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=tr("common.object_not_found")
+        )
     return expense_obj
 
 
 @router.post("/expenses", status_code=status.HTTP_201_CREATED)
-def create_expense(payload: ExpenseCreateSchema, db: Session = Depends(get_db), user: UserModel = Depends(get_current_user_from_cookies)):
+def create_expense(
+    payload: ExpenseCreateSchema,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(get_current_user_from_cookies),
+):
     data = payload.model_dump()
     data.update({"user_id": user.id})
     expense_obj = ExpenseModel(**data)
@@ -60,28 +94,56 @@ def create_expense(payload: ExpenseCreateSchema, db: Session = Depends(get_db), 
 
 @router.put("/expenses/{expense_id}", status_code=status.HTTP_200_OK)
 def update_expense_detail(
-    payload: ExpenseUpdateSchema, expense_id: int = Path(..., description="ID of the expense to update"), db: Session = Depends(get_db), user: UserModel = Depends(get_current_user_from_cookies), tr: I18n = Depends(get_translator)
+    payload: ExpenseUpdateSchema,
+    expense_id: int = Path(..., description="ID of the expense to update"),
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(get_current_user_from_cookies),
+    tr: I18n = Depends(get_translator),
 ):
-    expense_obj = db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
+    expense_obj = (
+        db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
+    )
     if not expense_obj:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="object not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="object not found"
+        )
 
-    before = ExpenseResponseSchema.model_validate(expense_obj, from_attributes=True).model_dump()
+    before = ExpenseResponseSchema.model_validate(
+        expense_obj, from_attributes=True
+    ).model_dump()
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(expense_obj, field, value)
     db.commit()
     db.refresh(expense_obj)
-    after = ExpenseResponseSchema.model_validate(expense_obj, from_attributes=True).model_dump()
+    after = ExpenseResponseSchema.model_validate(
+        expense_obj, from_attributes=True
+    ).model_dump()
 
-    return {"detail": tr("expense.updated", id=expense_id), "before": before, "after": after}
+    return {
+        "detail": tr("expense.updated", id=expense_id),
+        "before": before,
+        "after": after,
+    }
 
 
 @router.delete("/expenses/{expense_id}")
-def delete_expense(expense_id: int, db: Session = Depends(get_db), user: UserModel = Depends(get_current_user_from_cookies), tr: I18n = Depends(get_translator)):
-    expense_obj = db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
+def delete_expense(
+    expense_id: int,
+    db: Session = Depends(get_db),
+    user: UserModel = Depends(get_current_user_from_cookies),
+    tr: I18n = Depends(get_translator),
+):
+    expense_obj = (
+        db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
+    )
     if not expense_obj:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="object not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="object not found"
+        )
 
     db.delete(expense_obj)
     db.commit()
-    return JSONResponse(content={"detail":  tr("expense.deleted", id=expense_id)}, status_code=status.HTTP_200_OK)
+    return JSONResponse(
+        content={"detail": tr("expense.deleted", id=expense_id)},
+        status_code=status.HTTP_200_OK,
+    )

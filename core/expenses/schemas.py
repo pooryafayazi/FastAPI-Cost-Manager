@@ -4,12 +4,18 @@ from pydantic import BaseModel, field_validator, Field
 
 
 class BaseExpenseSchema(BaseModel):
-    description : str = Field(..., description="this is a short description of your expense.", min_length=3)
-    amount : int = Field(default=1, lt=10000000000, metadata={"unit": "dollars"}, description="this is amount of your expense")
-
+    description: str = Field(
+        ..., description="this is a short description of your expense.", min_length=3
+    )
+    amount: int = Field(
+        default=1,
+        lt=10000000000,
+        metadata={"unit": "dollars"},
+        description="this is amount of your expense",
+    )
 
     @field_validator("description")
-    def validator_description(cls, value: str) -> str:
+    def validator_description(self, value: str) -> str:
         value = value.strip()
 
         if len(value) > 50:
@@ -31,9 +37,8 @@ class ExpenseCreateSchema(BaseExpenseSchema):
 
 
 class ExpenseResponseSchema(BaseExpenseSchema):
-    id : int = Field(..., description="Unique expense identifier")
+    id: int = Field(..., description="Unique expense identifier")
     create_date: datetime | None = None
     updated_date: datetime | None = None
-    
-    model_config = {"from_attributes": True}
 
+    model_config = {"from_attributes": True}

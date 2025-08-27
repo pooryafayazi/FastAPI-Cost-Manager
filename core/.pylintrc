@@ -1,0 +1,31 @@
+[MASTER]
+# مسیرهایی که نباید بررسی بشن (مثل migrations یا venv)
+ignore=venv,.venv,__pycache__,migrations,.git,i18n,database_test.py
+
+# تعداد پردازه‌های موازی برای آنالیز (سریع‌تر میشه)
+jobs=1
+
+[MESSAGES CONTROL]
+# خطاهایی که نمیخوای ببینی رو غیرفعال کن (Customize کن)
+disable=
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0903,  # too-few-public-methods
+
+[FORMAT]
+# طول مجاز هر خط
+max-line-length=79
+
+[REPORTS]
+# گزارش امتیاز کلی نده (فقط خطاها رو نشون بده)
+score=no
+
+[DESIGN]
+# حداکثر تعداد آرگومان برای یک تابع
+max-args=6
+
+
+[TYPECHECK]
+# ماژول‌هایی که اگه پیدا نشدند خطا نگیره (مثلاً وقتی توی venv نصب نیستند)
+ignored-modules=alembic,sqlalchemy,fastapi,pydantic

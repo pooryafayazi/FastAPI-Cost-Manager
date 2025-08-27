@@ -1,0 +1,9 @@
+[flake8]
+extend-ignore = E203, E501, E402, F401
+exclude =
+    .git,
+    __pycache__,
+    migrations,
+    .venv,
+    i18n,
+    .\database_test.py
