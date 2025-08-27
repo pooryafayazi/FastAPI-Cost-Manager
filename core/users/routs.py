@@ -8,6 +8,7 @@ from fastapi import APIRouter
 from users.schemas import UserLoginSchema, UserRegisterSchema
 from auth.jwt_auth import generate_access_token, generate_refresh_token
 import secrets
+from i18n.i18n import I18n, get_translator
 from auth.jwt_cookie_auth import (
     set_auth_cookies,
     set_access_cookie,
@@ -44,7 +45,7 @@ async def user_register(payload: UserRegisterSchema, db: Session = Depends(get_d
 
 # ---------- JWT Cookie ----------
 @router.post("/login-cookie")
-def user_login_cookie(payload: UserLoginSchema, db: Session = Depends(get_db)):
+def user_login_cookie(payload: UserLoginSchema, db: Session = Depends(get_db), tr: I18n = Depends(get_translator)):
     user_obj = db.query(UserModel).filter_by(username=payload.username.lower()).first()
     if not user_obj:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="username doesnt exists!")
@@ -55,7 +56,7 @@ def user_login_cookie(payload: UserLoginSchema, db: Session = Depends(get_db)):
     refresh_token = generate_refresh_token(user_obj.id)
 
     # set cookies on response
-    resp = JSONResponse(content={"detail": "logged in successfully (cookie auth)"})
+    resp = JSONResponse(content={"detail": tr("auth.login_success")})
     set_auth_cookies(resp, access_token, refresh_token)
     set_csrf_cookie(resp)
     resp.headers["Cache-Control"] = "no-store"
@@ -63,21 +64,21 @@ def user_login_cookie(payload: UserLoginSchema, db: Session = Depends(get_db)):
 
 
 @router.post("/refresh-cookie")
-def user_refresh_cookie(request: Request, x_csrf_token: str = Header(...), _=Depends(verify_csrf)):
+def user_refresh_cookie(request: Request, x_csrf_token: str = Header(...), _=Depends(verify_csrf), tr: I18n = Depends(get_translator)):
     # Reads the refresh token from the cookie, creates a new access token if it is valid, and only updates the access cookie.
     user_id = get_user_id_from_refresh_cookie(request)
     new_access = generate_access_token(user_id)
 
-    resp = JSONResponse(content={"detail": "access token refreshed (cookie auth)"})
+    resp = JSONResponse(content={"detail": tr("auth.refresh_success")})
     set_access_cookie(resp, new_access)
     resp.headers["Cache-Control"] = "no-store"
     return resp
 
 
 @router.post("/logout-cookie")
-def user_logout_cookie(x_csrf_token: str = Header(...), _=Depends(verify_csrf)):
+def user_logout_cookie(x_csrf_token: str = Header(...), _=Depends(verify_csrf), tr: I18n = Depends(get_translator)):
     # clear cookies (logout)
-    resp = JSONResponse(content={"detail": "logged out (cookie auth)"})
+    resp = JSONResponse(content={"detail": tr("auth.logout_success")})
     clear_auth_cookies(resp)
     resp.headers["Cache-Control"] = "no-store"
     return resp

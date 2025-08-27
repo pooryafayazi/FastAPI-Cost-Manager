@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     COOKIE_SECURE: bool = False  # True in Production
     COOKIE_SAMESITE: str = "lax" # If there are separate domains for API and front, "none" + secure=True
     COOKIE_DOMAIN: str | None = None
+    DEFAULT_LANGUAGE: str = "en"
+    SUPPORTED_LANGUAGES: list[str] = ["en", "fa"]
     
     model_config = SettingsConfigDict(env_file=".env")
 

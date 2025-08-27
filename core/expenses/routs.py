@@ -9,6 +9,7 @@ from fastapi import APIRouter
 from math import ceil
 from expenses.schemas import ExpenseCreateSchema, ExpenseUpdateSchema, ExpenseResponseSchema
 from auth.jwt_cookie_auth import get_current_user_from_cookies
+from i18n.i18n import I18n, get_translator
 
 
 router = APIRouter(tags=["expenses"],)
@@ -39,10 +40,10 @@ def retrieve_expense_list(
 
 
 @router.get("/expenses/{expense_id}")
-def retrieve_expense_detail(expense_id: int = Path(..., description="Expense ID"), db: Session = Depends(get_db), user: UserModel = Depends(get_current_user_from_cookies)):
+def retrieve_expense_detail(expense_id: int = Path(..., description="Expense ID"), db: Session = Depends(get_db), user: UserModel = Depends(get_current_user_from_cookies), tr: I18n = Depends(get_translator)):
     expense_obj = db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
     if not expense_obj:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="object not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=tr("common.object_not_found"))
     return expense_obj
 
 
@@ -59,7 +60,7 @@ def create_expense(payload: ExpenseCreateSchema, db: Session = Depends(get_db), 
 
 @router.put("/expenses/{expense_id}", status_code=status.HTTP_200_OK)
 def update_expense_detail(
-    payload: ExpenseUpdateSchema, expense_id: int = Path(..., description="ID of the expense to update"), db: Session = Depends(get_db), user: UserModel = Depends(get_current_user_from_cookies)
+    payload: ExpenseUpdateSchema, expense_id: int = Path(..., description="ID of the expense to update"), db: Session = Depends(get_db), user: UserModel = Depends(get_current_user_from_cookies), tr: I18n = Depends(get_translator)
 ):
     expense_obj = db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
     if not expense_obj:
@@ -72,15 +73,15 @@ def update_expense_detail(
     db.refresh(expense_obj)
     after = ExpenseResponseSchema.model_validate(expense_obj, from_attributes=True).model_dump()
 
-    return {"detail": f"expense {expense_id} updated", "before": before, "after": after}
+    return {"detail": tr("expense.updated", id=expense_id), "before": before, "after": after}
 
 
 @router.delete("/expenses/{expense_id}")
-def delete_expense(expense_id: int, db: Session = Depends(get_db), user: UserModel = Depends(get_current_user_from_cookies)):
+def delete_expense(expense_id: int, db: Session = Depends(get_db), user: UserModel = Depends(get_current_user_from_cookies), tr: I18n = Depends(get_translator)):
     expense_obj = db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
     if not expense_obj:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="object not found")
 
     db.delete(expense_obj)
     db.commit()
-    return JSONResponse(content={"detail": f"expense {expense_id} deleted!"}, status_code=status.HTTP_200_OK)
+    return JSONResponse(content={"detail":  tr("expense.deleted", id=expense_id)}, status_code=status.HTTP_200_OK)
