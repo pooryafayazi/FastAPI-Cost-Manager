@@ -58,6 +58,7 @@ def user_login_cookie(payload: UserLoginSchema, db: Session = Depends(get_db)):
     resp = JSONResponse(content={"detail": "logged in successfully (cookie auth)"})
     set_auth_cookies(resp, access_token, refresh_token)
     set_csrf_cookie(resp)
+    resp.headers["Cache-Control"] = "no-store"
     return resp
 
 
@@ -69,6 +70,7 @@ def user_refresh_cookie(request: Request, x_csrf_token: str = Header(...), _=Dep
 
     resp = JSONResponse(content={"detail": "access token refreshed (cookie auth)"})
     set_access_cookie(resp, new_access)
+    resp.headers["Cache-Control"] = "no-store"
     return resp
 
 
@@ -77,6 +79,7 @@ def user_logout_cookie(x_csrf_token: str = Header(...), _=Depends(verify_csrf)):
     # clear cookies (logout)
     resp = JSONResponse(content={"detail": "logged out (cookie auth)"})
     clear_auth_cookies(resp)
+    resp.headers["Cache-Control"] = "no-store"
     return resp
 
 
