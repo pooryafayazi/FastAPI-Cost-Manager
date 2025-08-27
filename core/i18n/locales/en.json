@@ -1,0 +1,23 @@
+{
+  "common": {
+    "hello": "Hello, {name}!",
+    "object_not_found": "Object not found",
+    "forbidden_csrf": "CSRF token missing or invalid"
+  },
+  "auth": {
+    "login_success": "Logged in successfully (cookie auth)",
+    "refresh_success": "Access token refreshed (cookie auth)",
+    "logout_success": "Logged out (cookie auth)",
+    "missing_access_cookie": "Missing access token cookie",
+    "missing_refresh_cookie": "Missing refresh token cookie",
+    "invalid_token": "Invalid token",
+    "invalid_token_type": "Invalid token type",
+    "invalid_token_payload": "Invalid token payload",
+    "token_expired": "Token expired",
+    "user_not_found": "User not found"
+  },
+  "expense": {
+    "updated": "Expense {id} updated",
+    "deleted": "Expense {id} deleted!"
+  }
+}

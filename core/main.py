@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from expenses.routs import router as expenses_router
 from users.routs import router as users_router
-
+from i18n.i18n import I18n, get_translator
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -53,3 +53,6 @@ def public_rout():
 def private_rout(user=Depends(get_authenticated_user)):
     return {"detail": "this is public rout", "username": user.username}
 
+@app.get("/hello")
+def hello(tr: I18n = Depends(get_translator)):
+    return {"message": tr("common.hello", name="Poorya")}
