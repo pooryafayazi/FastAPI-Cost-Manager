@@ -5,7 +5,8 @@
 # command >venv\Scripts\activate
 
 # command > pip install fastapi[standard]
-
+# or
+# pip install -r requirements.txt
 
 # create requirements.txt file
 
