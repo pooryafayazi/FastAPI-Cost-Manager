@@ -17,7 +17,7 @@ class UserRegisterSchema(BaseModel):
     password_confirm: str = Field(..., description="confirm user's password")
 
     @field_validator("password_confirm")
-    def check_password_match(self, password_confirm, validation):
+    def check_password_match(cls, password_confirm, validation):
         if not password_confirm == validation.data.get("password"):
             raise ValueError("password doesnt match!")
         return password_confirm

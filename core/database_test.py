@@ -1,7 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import sessionmaker, declarative_base
+# from sqlalchemy import create_engine, Column, Integer, String
+# from sqlalchemy.orm import sessionmaker, declarative_base
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./sqlite.db"
+# SQLALCHEMY_DATABASE_URL = "sqlite:///./sqlite.db"
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./:memory:"
 
 # for postgres or other relationsal databases
@@ -10,15 +10,15 @@ SQLALCHEMY_DATABASE_URL = "sqlite:///./sqlite.db"
 
 
 # Example for a SQLite database
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}  # only sqlite
-)
+# engine = create_engine(
+    # SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}  # only sqlite
+# )
 
 # sessionmake as cursor
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # create base class for declaring tables
-Base = declarative_base()
+# Base = declarative_base()
 
 
 """
@@ -322,7 +322,7 @@ class SampleModel(Base):
     binary_field = Column(LargeBinary)
 """
 
-
+"""
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text
 from sqlalchemy.orm import relationship
 
@@ -365,7 +365,7 @@ class Address(Base):
 
     def __repr__(self):
         return f"Address(id={self.id}, user_id={self.user_id}, city={self.city}, state={self.state}, zip_code={self.zip_code})"
-
+"""
 
 # Base.metadata.create_all(engine)
 
@@ -393,7 +393,7 @@ class Address(Base):
 # address = session.query(Address).filter_by(user_id=user.id, city="karaj").one_or_none()
 # print(address.user.username)
 
-
+"""
 class Profile(Base):
     __tablename__ = "profiles"
 
@@ -405,7 +405,7 @@ class Profile(Base):
 
     def __repr__(self):
         return f"Profile(id={self.id}, first_name={self.first_name}, last_name={self.last_name})"
-
+"""
 
 # Base.metadata.create_all(engine)
 
@@ -421,7 +421,7 @@ class Profile(Base):
 
 # print(user.profile.first_name)
 
-
+"""
 from sqlalchemy import DateTime
 from datetime import datetime
 
@@ -470,6 +470,7 @@ class Comment(Base):
 
     def __repr__(self):
         return f"Comment(id={self.id}, post_id={self.post_id}, user_id={self.user_id} parent id = {self.parent_id})"
+"""
 
 
 # Base.metadata.create_all(engine)
@@ -509,7 +510,7 @@ class Comment(Base):
 # [print(comment) for comment in comments]
 # [print(comment.children) for comment in comments]
 
-
+"""
 from sqlalchemy import Table, UniqueConstraint
 
 
@@ -538,13 +539,13 @@ class Course(Base):
 
     def __repr__(self):
         return f"Course(id={self.id}, title={self.title})"
+"""
 
+# Base.metadata.create_all(engine)
 
-Base.metadata.create_all(engine)
+# session = SessionLocal()
 
-session = SessionLocal()
-
-user = session.query(User).filter_by(username="pooryafayazi").one_or_none()
+# user = session.query(User).filter_by(username="pooryafayazi").one_or_none()
 
 
 # اضافه کردن یک دوره جدید
@@ -553,12 +554,12 @@ user = session.query(User).filter_by(username="pooryafayazi").one_or_none()
 
 
 # پیدا کردن دوره
-course = session.query(Course).filter_by(title="Python").one()
+# course = session.query(Course).filter_by(title="Python").one()
 
 # اضافه کردن کاربر به دوره
 # course.attendess.append(user)   # چون در مدل Course اسم رابطه رو users گذاشتیم
 # session.commit()
 
 
-print(course.attendess)
-print(user.courses)
+# print(course.attendess)
+# print(user.courses)

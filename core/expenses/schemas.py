@@ -10,12 +10,12 @@ class BaseExpenseSchema(BaseModel):
     amount: int = Field(
         default=1,
         lt=10000000000,
-        metadata={"unit": "dollars"},
+        json_schema_extra={"unit": "dollars"},
         description="this is amount of your expense",
     )
 
     @field_validator("description")
-    def validator_description(self, value: str) -> str:
+    def validator_description(cls, value: str) -> str:
         value = value.strip()
 
         if len(value) > 50:
