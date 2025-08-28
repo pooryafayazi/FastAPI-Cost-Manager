@@ -14,6 +14,7 @@ from expenses.schemas import (
 from core.db import get_db
 from auth.jwt_cookie_auth import get_current_user_from_cookies
 from i18n.i18n import I18n, get_translator
+from exceptions import ExpenseNotFound
 
 
 router = APIRouter(
@@ -41,7 +42,8 @@ def retrieve_expense_list(
 ):
     query = db.query(ExpenseModel).filter_by(user_id=user.id)
     if q:
-        query = query.filter(ExpenseModel.description.ilike(q.strip()))
+        # query = query.filter(ExpenseModel.description.ilike(q.strip()))
+        query = query.filter(ExpenseModel.description.ilike(f"%{q.strip()}%"))
 
     total_items = query.count()
     total_pages = ceil(total_items / limit) if total_items else 1
@@ -71,9 +73,7 @@ def retrieve_expense_detail(
         db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
     )
     if not expense_obj:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=tr("common.object_not_found")
-        )
+        raise ExpenseNotFound(tr("common.object_not_found"))
     return expense_obj
 
 
@@ -104,9 +104,7 @@ def update_expense_detail(
         db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
     )
     if not expense_obj:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="object not found"
-        )
+        raise ExpenseNotFound(tr("common.object_not_found"))
 
     before = ExpenseResponseSchema.model_validate(
         expense_obj, from_attributes=True
@@ -137,13 +135,11 @@ def delete_expense(
         db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
     )
     if not expense_obj:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="object not found"
-        )
+        raise ExpenseNotFound(tr("common.object_not_found"))
 
     db.delete(expense_obj)
     db.commit()
     return JSONResponse(
-        content={"detail": tr("expense.deleted", id=expense_id)},
-        status_code=status.HTTP_200_OK,
+        content={"ok": True, "status": status.HTTP_200_OK,
+                 "message": f"Expense with id {expense_id} deleted successfully",}
     )

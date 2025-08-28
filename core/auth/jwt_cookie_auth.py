@@ -33,7 +33,7 @@ def set_csrf_cookie(response: Response) -> str:
 def verify_csrf(request: Request, tr: I18n = Depends(get_translator)) -> None:
     header = request.headers.get("x-csrf-token")
     cookie = request.cookies.get(CSRF_COOKIE_NAME)
-    if not header or not cookie or compare_digest(header, cookie):
+    if not header or not cookie or not compare_digest(header, cookie):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail=tr("common.forbidden_csrf")
         )
