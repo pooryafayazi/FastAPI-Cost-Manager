@@ -15,7 +15,7 @@ class BaseExpenseSchema(BaseModel):
     )
 
     @field_validator("description")
-    def validator_description(self, value: str) -> str:
+    def validator_description(cls, value: str) -> str:
         value = value.strip()
 
         if len(value) > 50:
