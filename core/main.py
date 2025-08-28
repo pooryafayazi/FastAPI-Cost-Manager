@@ -1,11 +1,19 @@
 # core/main.py
 from contextlib import asynccontextmanager
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.security import HTTPBearer
 from fastapi import FastAPI, Depends
 from auth.jwt_auth import get_authenticated_user
 from expenses.routs import router as expenses_router
 from users.routs import router as users_router
 from i18n.i18n import I18n, get_translator
+from exceptions import (
+    AppError, 
+    app_error_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
 
 
 @asynccontextmanager
@@ -66,3 +74,8 @@ def private_rout(user=Depends(get_authenticated_user)):
 @app.get("/hello")
 def hello(tr: I18n = Depends(get_translator)):
     return {"message": tr("common.hello", name="Poorya")}
+
+
+app.add_exception_handler(AppError, app_error_handler)
+app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)

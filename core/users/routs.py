@@ -44,7 +44,7 @@ async def user_register(payload: UserRegisterSchema, db: Session = Depends(get_d
         "id": user_obj.id,
         "username": user_obj.username,
     }
-    return JSONResponse(content=content)
+    return JSONResponse(content=content, status_code=status.HTTP_201_CREATED)
 
 
 # ---------- JWT Cookie ----------
@@ -57,11 +57,11 @@ def user_login_cookie(
     user_obj = db.query(UserModel).filter_by(username=payload.username.lower()).first()
     if not user_obj:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="username doesnt exists!"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password!"
         )
     if not user_obj.verify_password(payload.password):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="password is invalid!"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password!"
         )
 
     access_token = generate_access_token(user_obj.id)
