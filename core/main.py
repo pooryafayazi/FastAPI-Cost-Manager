@@ -17,12 +17,26 @@ from exceptions import (
     http_exception_handler,
     validation_exception_handler,
 )
+# from apscheduler.schedulers.asyncio import AsyncIOScheduler
+# from apscheduler.triggers.interval import IntervalTrigger
 
+
+# scheduler = AsyncIOScheduler()
+
+
+# def my_task():
+    # print(f"Task executed at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Application Startup")
+    # scheduler.add_job(my_task, IntervalTrigger(seconds=10))
+    # scheduler.start()
+    
     yield
+    
+    # scheduler.shutdown()
     print("Application Shutdown")
 
 
