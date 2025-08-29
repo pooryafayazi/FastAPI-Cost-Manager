@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: db-cm
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    ports:
+      - "5432:5432"
+  
+  redis:
+    image: redis:alpine
+    container_name: redis-cm
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test : ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+  
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    container_name: smtp4dev-cm
+    restart: always
+    ports:
+      - "5000:80"   # Web UI -> http://localhost:5000
+      - "25:25"     # SMTP server
+      - "143:143"   # IMAP server
+      # - "110:110" # (optional) POP3
+    volumes:
+      - smtp4dev-data:/smtp4dev
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: backend-cm
+    depends_on:
+      - db
+      - redis
+    environment:
+      SQLALCHEMY_DATABASE_URL: "postgresql://postgres:postgres@db:5432/postgres"
+      JWT_SECRET_KEY: "_yoqudf&c068v=zm!*1r4#3g=nc+vf1a7bt%6(wpugq%get_cw"
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8000:8000"
+    command: sh -c 'fastapi dev --host 0.0.0.0 --port 8000'
+    volumes:
+      - ./core:/usr/src/core
+
+volumes:
+  smtp4dev-data:
