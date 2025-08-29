@@ -11,6 +11,8 @@ from core.config import settings
 from core.db import get_db
 from users.models import UserModel
 
+from i18n.utils import _
+
 
 security = HTTPBearer()
 
@@ -27,19 +29,22 @@ def get_authenticated_user(
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication failed, user_id not in the payload",
+                # detail="Authentication failed, user_id not in the payload",
+                detail=_("Authentication failed: user_id missing in token payload."),
             )
 
         if decoded.get("type") != "access":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication failed, token type not valid",
+                # detail="Authentication failed, token type not valid",
+                detail=_("Authentication failed: token type is not valid."),
             )
 
         if datetime.now() > datetime.fromtimestamp(decoded.get("exp", 0)):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication failed, token expired",
+                # detail="Authentication failed, token expired",
+                detail=_("Authentication failed: token has expired."),
             )
 
         user_obj = db.query(UserModel).filter_by(id=user_id).one()
@@ -48,17 +53,20 @@ def get_authenticated_user(
     except InvalidSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authenticated failed, Invalid Signature",
+            # detail="Authenticated failed, Invalid Signature",
+            detail=_("Authentication failed: invalid signature."),
         )
     except DecodeError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authenticated failed, Decode failed",
+            # detail="Authenticated failed, Decode failed",
+            detail=_("Authentication failed: decode failed."),
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Authenticated failed, {e}",
+            # detail=f"Authenticated failed, {e}",
+            detail=_("Authentication failed: {error}").format(error=str(e)),
         )
 
 
@@ -94,17 +102,20 @@ def decode_refresh_token(token):
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication failed, user_id not in the payload",
+                # detail="Authentication failed, user_id not in the payload",
+                detail=_("Authentication failed: user_id missing in token payload."),
             )
         if decoded.get("type") != "refresh":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication failed, token type not valid",
+                # detail="Authentication failed, token type not valid",
+                detail=_("Authentication failed: token type is not valid."),
             )
         if datetime.now() > datetime.fromtimestamp(decoded.get("exp", 0)):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication failed, token expired",
+                # detail="Authentication failed, token expired",
+                detail=_("Authentication failed: token has expired."),
             )
 
         return user_id
@@ -112,15 +123,18 @@ def decode_refresh_token(token):
     except InvalidSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authenticated failed, Invalid Signature",
+            # detail="Authenticated failed, Invalid Signature",
+            detail=_("Authentication failed: invalid signature."),
         )
     except DecodeError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authenticated failed, Decode failed",
+            # detail="Authenticated failed, Decode failed",
+             detail=_("Authentication failed: decode failed."),
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Authenticated failed, {e}",
+            # detail=f"Authenticated failed, {e}",
+            detail=_("Authentication failed: {error}").format(error=str(e)),
         )

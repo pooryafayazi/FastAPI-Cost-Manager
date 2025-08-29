@@ -5,10 +5,12 @@ import secrets
 import jwt
 from fastapi import Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
-from i18n.i18n import I18n, get_translator
+# from i18n.i18n import I18n, get_translator
 from core.config import settings
 from core.db import get_db
 from users.models import UserModel
+
+from i18n.utils import _
 
 
 CSRF_COOKIE_NAME = "csrf_token"
@@ -30,17 +32,22 @@ def set_csrf_cookie(response: Response) -> str:
     return token
 
 
-def verify_csrf(request: Request, tr: I18n = Depends(get_translator)) -> None:
+def verify_csrf(request: Request,
+                # tr: I18n = Depends(get_translator)
+                ) -> None:
     header = request.headers.get("x-csrf-token")
     cookie = request.cookies.get(CSRF_COOKIE_NAME)
     if not header or not cookie or not compare_digest(header, cookie):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail=tr("common.forbidden_csrf")
+            status_code=status.HTTP_403_FORBIDDEN,
+            # detail=tr("common.forbidden_csrf")
+            detail=_("Forbidden: CSRF token invalid or missing."),
         )
 
 
 def _decode_and_validate(
-    token: str, expected_type: str, tr: I18n = Depends(get_translator)
+    token: str, expected_type: str,
+    # tr: I18n = Depends(get_translator)
 ) -> dict:
     # decode & validation (type & exp) JWT
     try:
@@ -48,20 +55,23 @@ def _decode_and_validate(
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=tr("auth.token_expired"),
+            # detail=tr("auth.token_expired"),
+            detail=_("Token has expired."),
             headers={"WWW-Authenticate": "Bearer"},
         )
     except jwt.InvalidTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=tr("auth.invalid_token"),
+            # detail=tr("auth.invalid_token"),
+            detail=_("Invalid token."),
             headers={"WWW-Authenticate": "Bearer"},
         )
 
     if decoded.get("type") != expected_type:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=tr("auth.invalid_token_type"),
+            # detail=tr("auth.invalid_token_type"),
+            detail=_("Invalid token type."),
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -69,7 +79,8 @@ def _decode_and_validate(
     if exp is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=tr("auth.invalid_token_payload"),
+            # detail=tr("auth.invalid_token_payload"),
+            detail=_("Invalid token payload."),
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -77,7 +88,8 @@ def _decode_and_validate(
     if datetime.now(timezone.utc) > datetime.fromtimestamp(exp, tz=timezone.utc):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=tr("auth.token_expired"),
+            # detail=tr("auth.token_expired"),
+            detail=_("Token has expired."),
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -132,14 +144,15 @@ def clear_auth_cookies(response: Response) -> None:
 def get_current_user_from_cookies(
     request: Request,
     db: Session = Depends(get_db),
-    tr: I18n = Depends(get_translator),
+    # tr: I18n = Depends(get_translator),
 ) -> UserModel:
     # Dependency reads the access cookie for protected routes
     token = request.cookies.get(settings.COOKIE_ACCESS_NAME)
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=tr("auth.missing_access_cookie"),
+            # detail=tr("auth.missing_access_cookie"),
+            detail=_("Missing access token cookie."),
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -148,7 +161,8 @@ def get_current_user_from_cookies(
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=tr("auth.invalid_token_payload"),
+            # detail=tr("auth.invalid_token_payload"),
+            detail=_("Invalid token payload."),
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -156,21 +170,23 @@ def get_current_user_from_cookies(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=tr("auth.user_not_found"),
+            # detail=tr("auth.user_not_found"),
+            detail=_("User not found."),
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
 
 
-def get_user_id_from_refresh_cookie(
-    request: Request, tr: I18n = Depends(get_translator)
+def get_user_id_from_refresh_cookie(request: Request,
+    # tr: I18n = Depends(get_translator)
 ) -> int:
     # For refresh: Returns only the user_id from the refresh token in the cookie.
     token = request.cookies.get(settings.COOKIE_REFRESH_NAME)
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=tr("auth.missing_refresh_cookie"),
+            # detail=tr("auth.missing_refresh_cookie"),
+            detail=_("Missing refresh token cookie."),
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -179,7 +195,8 @@ def get_user_id_from_refresh_cookie(
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=tr("auth.invalid_token_payload"),
+            # detail=tr("auth.invalid_token_payload"),
+            detail=_("Invalid token payload."),
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user_id

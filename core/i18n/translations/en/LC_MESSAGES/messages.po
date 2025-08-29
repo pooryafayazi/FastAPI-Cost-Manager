@@ -1,0 +1,120 @@
+# English translations for PROJECT.
+# Copyright (C) 2025 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-08-29 16:38+0000\n"
+"PO-Revision-Date: 2025-08-29 15:23+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en\n"
+"Language-Team: en <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: main.py:134
+msgid "Hello, this is a message in your language!"
+msgstr ""
+
+#: auth/jwt_auth.py:33 auth/jwt_auth.py:106
+msgid "Authentication failed: user_id missing in token payload."
+msgstr ""
+
+#: auth/jwt_auth.py:40 auth/jwt_auth.py:112
+msgid "Authentication failed: token type is not valid."
+msgstr ""
+
+#: auth/jwt_auth.py:47 auth/jwt_auth.py:118
+msgid "Authentication failed: token has expired."
+msgstr ""
+
+#: auth/jwt_auth.py:57 auth/jwt_auth.py:127
+msgid "Authentication failed: invalid signature."
+msgstr ""
+
+#: auth/jwt_auth.py:63 auth/jwt_auth.py:133
+msgid "Authentication failed: decode failed."
+msgstr ""
+
+#: auth/jwt_auth.py:69 auth/jwt_auth.py:139
+#, python-brace-format
+msgid "Authentication failed: {error}"
+msgstr ""
+
+#: auth/jwt_cookie_auth.py:44
+msgid "Forbidden: CSRF token invalid or missing."
+msgstr ""
+
+#: auth/jwt_cookie_auth.py:59 auth/jwt_cookie_auth.py:92
+msgid "Token has expired."
+msgstr ""
+
+#: auth/jwt_cookie_auth.py:66
+msgid "Invalid token."
+msgstr ""
+
+#: auth/jwt_cookie_auth.py:74
+msgid "Invalid token type."
+msgstr ""
+
+#: auth/jwt_cookie_auth.py:83 auth/jwt_cookie_auth.py:165
+#: auth/jwt_cookie_auth.py:199
+msgid "Invalid token payload."
+msgstr ""
+
+#: auth/jwt_cookie_auth.py:155
+msgid "Missing access token cookie."
+msgstr ""
+
+#: auth/jwt_cookie_auth.py:174
+msgid "User not found."
+msgstr ""
+
+#: auth/jwt_cookie_auth.py:189
+msgid "Missing refresh token cookie."
+msgstr ""
+
+#: expenses/routs.py:79 expenses/routs.py:111 expenses/routs.py:144
+msgid "Object not found."
+msgstr ""
+
+#: expenses/routs.py:126
+#, python-brace-format
+msgid "Expense {id} updated successfully."
+msgstr ""
+
+#: expenses/routs.py:151
+#, python-brace-format
+msgid "Expense with id {id} deleted successfully."
+msgstr ""
+
+#: users/routs.py:37
+msgid "Username already exists!"
+msgstr ""
+
+#: users/routs.py:47
+msgid "User created."
+msgstr ""
+
+#: users/routs.py:66 users/routs.py:72
+msgid "Invalid username or password!"
+msgstr ""
+
+#: users/routs.py:81
+msgid "Login successful."
+msgstr ""
+
+#: users/routs.py:100
+msgid "Token refreshed successfully."
+msgstr ""
+
+#: users/routs.py:114
+msgid "Logged out successfully."
+msgstr ""
+
