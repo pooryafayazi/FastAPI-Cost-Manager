@@ -1,8 +1,8 @@
-"""initial database expenses and users tables
+"""create tables
 
-Revision ID: b333b96a2380
+Revision ID: 0312cc22e70c
 Revises: 
-Create Date: 2025-08-27 15:56:19.519012
+Create Date: 2025-08-28 19:22:39.450208
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'b333b96a2380'
+revision: str = '0312cc22e70c'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,8 +26,8 @@ def upgrade() -> None:
     sa.Column('username', sa.String(length=250), nullable=False),
     sa.Column('password', sa.String(), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=True),
-    sa.Column('create_date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
-    sa.Column('updated_date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('create_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_username'), 'users', ['username'], unique=True)
@@ -36,8 +36,8 @@ def upgrade() -> None:
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('description', sa.String(length=50), nullable=False),
     sa.Column('amount', sa.Integer(), nullable=False),
-    sa.Column('create_date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
-    sa.Column('updated_date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('create_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -47,7 +47,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('token', sa.String(), nullable=False),
-    sa.Column('create_date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('create_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('expires_in', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),

@@ -5,12 +5,18 @@ import time
 import random
 import httpx
 from fastapi_cache import FastAPICache
-from fastapi_cache.backends.inmemory import InMemoryBackend
+# from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
+
+from redis import asyncio as aioredis
+
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.security import HTTPBearer
 from fastapi import FastAPI, Depends, Request, BackgroundTasks
+from pydantic import BaseModel, EmailStr
+from typing import List
 from auth.jwt_auth import get_authenticated_user
 from expenses.routs import router as expenses_router
 from users.routs import router as users_router
@@ -21,21 +27,37 @@ from exceptions import (
     http_exception_handler,
     validation_exception_handler,
 )
-# from apscheduler.schedulers.asyncio import AsyncIOScheduler
-# from apscheduler.triggers.interval import IntervalTrigger
+from core.config import settings
+from core.email_util import send_email
 
+"""
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.jobstores.redis import RedisJobStore
+import logging
+import time
+
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+
+jobstores = {
+    "default": RedisJobStore(jobs_key="apscheduler.jobs", run_times_key="apscheduler.run_times", host="redis", port=6379, db=1)
+}
 
 # scheduler = AsyncIOScheduler()
+scheduler = AsyncIOScheduler(jobstores=jobstores)
 
-
-# def my_task():
+def my_task():
     # print(f"Task executed at {time.strftime('%Y-%m-%d %H:%M:%S')}")
-    
+    logger.info(f"Task executed at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+"""    
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Application Startup")
-    # scheduler.add_job(my_task, IntervalTrigger(seconds=10))
+    # scheduler.add_job(my_task, IntervalTrigger(seconds=10), id="my_task", replace_existing=True)    
     # scheduler.start()
     
     yield
@@ -128,9 +150,16 @@ async def initiate_task(background_tasks: BackgroundTasks):
     return JSONResponse(content={"detail": "task is done"})
 
 
-# set up the cache backend
+# set up the cache backend inmemory (without redis)
+"""
 cache_backend = InMemoryBackend()
 FastAPICache.init(cache_backend)
+"""
+
+# set up the redis-cache backend
+redis = aioredis.from_url(settings.REDIS_URL)
+cache_backend = RedisBackend(redis)
+FastAPICache.init(cache_backend, prefix="fastapi-cache")
 
 
 async def request_current_weather(latitude: float, longitude: float):
@@ -151,7 +180,7 @@ async def request_current_weather(latitude: float, longitude: float):
     else:
         return None
 
-
+"""
 @app.get("/fetch-current-weather", status_code=200)
 @cache(expire=10)
 async def fetch_current_weather(latitude: float = 40.7128, longitude: float = -74.0060):
@@ -178,3 +207,37 @@ async def fetch_current_weather(latitude: float = 40.7128, longitude: float = -7
         return JSONResponse(content={"current_weather": current_weather})
     else:
         return JSONResponse(content={"detail": "Failed to fetch weather"}, status_code=500)
+"""
+
+
+@app.get("/fetch-current-weather-with-redis", status_code=200)
+@cache(expire=10)
+async def fetch_current_weather(latitude: float = 40.7128, longitude: float = -74.0060):
+    current_weather = await request_current_weather(latitude, longitude)
+    if current_weather:
+        return JSONResponse(content={"current_weather": current_weather})
+    else:
+        return JSONResponse(content={"detail": "Failed to fetch weather"}, status_code=500)
+
+
+
+@app.get("/test-send-mail", status_code=200)
+async def test_send_mail_get():
+    await send_email(
+        subject="Test Email from FastAPI",
+        recipients=["recipient@example.com"],
+        body="This is a test email sent using the email_util function",
+    )
+    return JSONResponse(content={"detail": "Email has been sent"})
+
+
+# with POST and JSON body
+class MailIn(BaseModel):
+    subject: str
+    recipients: List[EmailStr]
+    body: str
+
+@app.post("/send-mail", status_code=200)
+async def send_mail_post(payload: MailIn):
+    await send_email(payload.subject, [str(r) for r in payload.recipients], payload.body)
+    return JSONResponse(content={"detail": "Email has been sent"})
