@@ -7,7 +7,7 @@ from core.db import get_db
 from users.models import UserModel
 from users.schemas import UserLoginSchema, UserRegisterSchema
 from auth.jwt_auth import generate_access_token, generate_refresh_token
-from i18n.i18n import I18n, get_translator
+# from i18n.i18n import I18n, get_translator
 from auth.jwt_cookie_auth import (
     set_auth_cookies,
     set_access_cookie,
@@ -18,6 +18,7 @@ from auth.jwt_cookie_auth import (
     verify_csrf,
 )
 
+from i18n.utils import _
 
 router = APIRouter(tags=["users"], prefix="/users")
 
@@ -31,7 +32,9 @@ def generate_token(length=32):
 async def user_register(payload: UserRegisterSchema, db: Session = Depends(get_db)):
     if db.query(UserModel).filter_by(username=payload.username.lower()).first():
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="username already exists!"
+            status_code=status.HTTP_409_CONFLICT,
+            # detail="username already exists!",
+             detail=_("Username already exists!"),
         )
 
     user_obj = UserModel(username=payload.username.lower())
@@ -40,7 +43,8 @@ async def user_register(payload: UserRegisterSchema, db: Session = Depends(get_d
     db.commit()
     db.refresh(user_obj)
     content = {
-        "detail": "user created",
+        # "detail": "user created",
+        "detail": _("User created."),
         "id": user_obj.id,
         "username": user_obj.username,
     }
@@ -52,23 +56,29 @@ async def user_register(payload: UserRegisterSchema, db: Session = Depends(get_d
 def user_login_cookie(
     payload: UserLoginSchema,
     db: Session = Depends(get_db),
-    tr: I18n = Depends(get_translator),
+    # tr: I18n = Depends(get_translator),
 ):
     user_obj = db.query(UserModel).filter_by(username=payload.username.lower()).first()
     if not user_obj:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password!"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            # etail="Invalid username or password!",
+            detail=_("Invalid username or password!"),
         )
     if not user_obj.verify_password(payload.password):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password!"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            # detail="Invalid username or password!",
+            detail=_("Invalid username or password!"),
+            
         )
 
     access_token = generate_access_token(user_obj.id)
     refresh_token = generate_refresh_token(user_obj.id)
 
     # set cookies on response
-    resp = JSONResponse(content={"detail": tr("auth.login_success")})
+    # resp = JSONResponse(content={"detail": tr("auth.login_success")})
+    resp = JSONResponse(content={"detail": _("Login successful.")})
     set_auth_cookies(resp, access_token, refresh_token)
     set_csrf_cookie(resp)
     resp.headers["Cache-Control"] = "no-store"
@@ -80,13 +90,14 @@ def user_refresh_cookie(
     request: Request,
     x_csrf_token: str = Header(...),
     _=Depends(verify_csrf),
-    tr: I18n = Depends(get_translator),
+    # tr: I18n = Depends(get_translator),
 ):
     # Reads the refresh token from the cookie, creates a new access token if it is valid, and only updates the access cookie.
     user_id = get_user_id_from_refresh_cookie(request)
     new_access = generate_access_token(user_id)
 
-    resp = JSONResponse(content={"detail": tr("auth.refresh_success")})
+    # resp = JSONResponse(content={"detail": tr("auth.refresh_success")})
+    resp = JSONResponse(content={"detail": _("Token refreshed successfully.")})
     set_access_cookie(resp, new_access)
     resp.headers["Cache-Control"] = "no-store"
     return resp
@@ -96,10 +107,11 @@ def user_refresh_cookie(
 def user_logout_cookie(
     x_csrf_token: str = Header(...),
     _=Depends(verify_csrf),
-    tr: I18n = Depends(get_translator),
+    # tr: I18n = Depends(get_translator),
 ):
     # clear cookies (logout)
-    resp = JSONResponse(content={"detail": tr("auth.logout_success")})
+    # resp = JSONResponse(content={"detail": tr("auth.logout_success")})
+    resp = JSONResponse(content={"detail": _("Logged out successfully.")})
     clear_auth_cookies(resp)
     resp.headers["Cache-Control"] = "no-store"
     return resp

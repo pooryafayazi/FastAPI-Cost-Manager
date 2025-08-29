@@ -20,7 +20,7 @@ from typing import List
 from auth.jwt_auth import get_authenticated_user
 from expenses.routs import router as expenses_router
 from users.routs import router as users_router
-from i18n.i18n import I18n, get_translator
+# from i18n.i18n import I18n, get_translator
 from exceptions import (
     AppError, 
     app_error_handler,
@@ -29,6 +29,11 @@ from exceptions import (
 )
 from core.config import settings
 from core.email_util import send_email
+
+from i18n.middleware import LanguageMiddleware
+from i18n.utils import _, get_current_lang
+
+
 
 """
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -79,7 +84,7 @@ tags_metadata = [
 
 
 app = FastAPI(
-    title="ToDo-App",
+    title="FastAPI-Cost-Manager",
     description="This is a Cost Manager app",
     version="0.0.1",
     terms_of_service="http://example.com/terms/",
@@ -94,6 +99,8 @@ app = FastAPI(
     lifespan=lifespan,
     openapi_tags=tags_metadata,
 )
+
+app.add_middleware(LanguageMiddleware)
 
 app.include_router(expenses_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
@@ -113,10 +120,23 @@ def public_rout():
 def private_rout(user=Depends(get_authenticated_user)):
     return {"detail": "this is public rout", "username": user.username}
 
-
+"""
 @app.get("/hello")
 def hello(tr: I18n = Depends(get_translator)):
     return {"message": tr("common.hello", name="Poorya")}
+"""
+
+class GreetingResponse(BaseModel):
+    message: str
+
+@app.get("/greetings", response_model=GreetingResponse)
+async def greetings():
+    return {"message": _("Hello, this is a message in your language!")}
+
+
+@app.get("/_debug/lang")
+async def current_lang():
+    return {"lang": get_current_lang()}
 
 
 app.add_exception_handler(AppError, app_error_handler)

@@ -13,8 +13,10 @@ from expenses.schemas import (
 )
 from core.db import get_db
 from auth.jwt_cookie_auth import get_current_user_from_cookies
-from i18n.i18n import I18n, get_translator
+# from i18n.i18n import I18n, get_translator
 from exceptions import ExpenseNotFound
+
+from i18n.utils import _
 
 
 router = APIRouter(
@@ -67,13 +69,14 @@ def retrieve_expense_detail(
     expense_id: int = Path(..., description="Expense ID"),
     db: Session = Depends(get_db),
     user: UserModel = Depends(get_current_user_from_cookies),
-    tr: I18n = Depends(get_translator),
+    # tr: I18n = Depends(get_translator),
 ):
     expense_obj = (
         db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
     )
     if not expense_obj:
-        raise ExpenseNotFound(tr("common.object_not_found"))
+        # raise ExpenseNotFound(tr("common.object_not_found"))
+        raise ExpenseNotFound(_("Object not found."))
     return expense_obj
 
 
@@ -98,13 +101,14 @@ def update_expense_detail(
     expense_id: int = Path(..., description="ID of the expense to update"),
     db: Session = Depends(get_db),
     user: UserModel = Depends(get_current_user_from_cookies),
-    tr: I18n = Depends(get_translator),
+    # tr: I18n = Depends(get_translator),
 ):
     expense_obj = (
         db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
     )
     if not expense_obj:
-        raise ExpenseNotFound(tr("common.object_not_found"))
+        # raise ExpenseNotFound(tr("common.object_not_found"))
+        raise ExpenseNotFound(_("Object not found."))
 
     before = ExpenseResponseSchema.model_validate(
         expense_obj, from_attributes=True
@@ -118,7 +122,8 @@ def update_expense_detail(
     ).model_dump()
 
     return {
-        "detail": tr("expense.updated", id=expense_id),
+        # "detail": tr("expense.updated", id=expense_id),
+        "detail": _("Expense {id} updated successfully.").format(id=expense_id),
         "before": before,
         "after": after,
     }
@@ -129,17 +134,20 @@ def delete_expense(
     expense_id: int,
     db: Session = Depends(get_db),
     user: UserModel = Depends(get_current_user_from_cookies),
-    tr: I18n = Depends(get_translator),
+    # tr: I18n = Depends(get_translator),
 ):
     expense_obj = (
         db.query(ExpenseModel).filter_by(id=expense_id, user_id=user.id).first()
     )
     if not expense_obj:
-        raise ExpenseNotFound(tr("common.object_not_found"))
+        # raise ExpenseNotFound(tr("common.object_not_found"))
+        raise ExpenseNotFound(_("Object not found."))
 
     db.delete(expense_obj)
     db.commit()
     return JSONResponse(
         content={"ok": True, "status": status.HTTP_200_OK,
-                 "message": f"Expense with id {expense_id} deleted successfully",}
+                #  "message": f"Expense with id {expense_id} deleted successfully",
+                 "message": _("Expense with id {id} deleted successfully.").format(id=expense_id),
+                 }
     )

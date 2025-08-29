@@ -1,0 +1,122 @@
+# Persian translations for PROJECT.
+# Copyright (C) 2025 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-08-29 16:38+0000\n"
+"PO-Revision-Date: 2025-08-29 15:23+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fa\n"
+"Language-Team: fa <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: main.py:134
+msgid "Hello, this is a message in your language!"
+msgstr "سلام! این پیام به زبان دلخواه شماست."
+
+#: auth/jwt_auth.py:33 auth/jwt_auth.py:106
+msgid "Authentication failed: user_id missing in token payload."
+msgstr "احراز هویت ناموفق: شناسه کاربر در توکن وجود ندارد."
+
+#: auth/jwt_auth.py:40 auth/jwt_auth.py:112
+msgid "Authentication failed: token type is not valid."
+msgstr "احراز هویت ناموفق: نوع توکن معتبر نیست."
+
+#: auth/jwt_auth.py:47 auth/jwt_auth.py:118
+msgid "Authentication failed: token has expired."
+msgstr "احراز هویت ناموفق: توکن منقضی شده است."
+
+#: auth/jwt_auth.py:57 auth/jwt_auth.py:127
+msgid "Authentication failed: invalid signature."
+msgstr "احراز هویت ناموفق: امضای توکن نامعتبر است."
+
+#: auth/jwt_auth.py:63 auth/jwt_auth.py:133
+msgid "Authentication failed: decode failed."
+msgstr "احراز هویت ناموفق: خطا در Decode توکن."
+
+#: auth/jwt_auth.py:69 auth/jwt_auth.py:139
+#, python-brace-format
+msgid "Authentication failed: {error}"
+msgstr "احراز هویت ناموفق: {error}"
+
+#: auth/jwt_cookie_auth.py:44
+msgid "Forbidden: CSRF token invalid or missing."
+msgstr "دسترسی ممنوع: توکن CSRF نامعتبر است یا وجود ندارد."
+
+#: auth/jwt_cookie_auth.py:59 auth/jwt_cookie_auth.py:92
+msgid "Token has expired."
+msgstr "توکن منقضی شده است."
+
+#: auth/jwt_cookie_auth.py:66
+msgid "Invalid token."
+msgstr "توکن نامعتبر است."
+
+#: auth/jwt_cookie_auth.py:74
+msgid "Invalid token type."
+msgstr "نوع توکن نامعتبر است."
+
+#: auth/jwt_cookie_auth.py:83 auth/jwt_cookie_auth.py:165
+#: auth/jwt_cookie_auth.py:199
+msgid "Invalid token payload."
+msgstr "payload توکن نامعتبر است."
+
+#: auth/jwt_cookie_auth.py:155
+msgid "Missing access token cookie."
+msgstr "کوکی توکن دسترسی یافت نشد."
+
+#: auth/jwt_cookie_auth.py:174
+#, fuzzy
+msgid "User not found."
+msgstr "کاربر یافت نشد."
+
+#: auth/jwt_cookie_auth.py:189
+msgid "Missing refresh token cookie."
+msgstr "کوکی توکن نوسازی یافت نشد."
+
+#: expenses/routs.py:79 expenses/routs.py:111 expenses/routs.py:144
+msgid "Object not found."
+msgstr "موردی یافت نشد."
+
+#: expenses/routs.py:126
+#, python-brace-format
+msgid "Expense {id} updated successfully."
+msgstr "هزینه {id} با موفقیت به‌روزرسانی شد."
+
+#: expenses/routs.py:151
+#, python-brace-format
+msgid "Expense with id {id} deleted successfully."
+msgstr "هزینه با شناسه {id} با موفقیت حذف شد."
+
+#: users/routs.py:37
+msgid "Username already exists!"
+msgstr "نام کاربری از قبل وجود دارد!"
+
+#: users/routs.py:47
+msgid "User created."
+msgstr "کاربر با موفقیت ایجاد شد."
+
+#: users/routs.py:66 users/routs.py:72
+msgid "Invalid username or password!"
+msgstr "نام کاربری یا رمز عبور نادرست است!"
+
+#: users/routs.py:81
+msgid "Login successful."
+msgstr "ورود با موفقیت انجام شد."
+
+#: users/routs.py:100
+#, fuzzy
+msgid "Token refreshed successfully."
+msgstr "توکن با موفقیت نوسازی شد."
+
+#: users/routs.py:114
+msgid "Logged out successfully."
+msgstr "خروج با موفقیت انجام شد."
+
