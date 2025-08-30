@@ -89,7 +89,8 @@ def user_login_cookie(
 def user_refresh_cookie(
     request: Request,
     x_csrf_token: str = Header(...),
-    _=Depends(verify_csrf),
+    # _=Depends(verify_csrf),
+    csrf_ok: None = Depends(verify_csrf),
     # tr: I18n = Depends(get_translator),
 ):
     # Reads the refresh token from the cookie, creates a new access token if it is valid, and only updates the access cookie.
@@ -106,7 +107,8 @@ def user_refresh_cookie(
 @router.post("/logout-cookie")
 def user_logout_cookie(
     x_csrf_token: str = Header(...),
-    _=Depends(verify_csrf),
+    # _=Depends(verify_csrf),
+    csrf_ok: None = Depends(verify_csrf),
     # tr: I18n = Depends(get_translator),
 ):
     # clear cookies (logout)

@@ -6,13 +6,10 @@
 
 # git add .
 # git commit -m "local changes"
-# یا
+# or
 # git stash
 
+# Then do git pull again.
 
-# بعد دوباره git pull بزن.
-
-
-# اگه فولدر خالیه و اصلاً repo نداری → ساده‌تره:
-
+# If the folder is empty and you don't have any repos → it's easier:
 # git clone <repo-url>
