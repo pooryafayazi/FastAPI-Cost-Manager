@@ -67,6 +67,7 @@ def my_task():
     logger.info(f"Task executed at {time.strftime('%Y-%m-%d %H:%M:%S')}")
 """    
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Application Startup")
