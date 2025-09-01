@@ -162,6 +162,7 @@ def start_task(task_id: int):
     time.sleep(random.randint(3, 10))
     print(f"finished task {task_id}")
 
+
 @app.get("/initiate-task", status_code=200)
 async def initiate_task(background_tasks: BackgroundTasks):
     global task_counter
