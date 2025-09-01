@@ -1,0 +1,46 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.16 Chrome/132.0.6834.196 Electron/34.2.0 Safari/537.36" version="26.0.16">
+  <diagram id="erd-1" name="Expense Manager ERD">
+    <mxGraphModel dx="1050" dy="621" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="users" value="UserModel" style="shape=swimlane;rounded=1;whiteSpace=wrap;html=1;container=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="270" y="417" width="360" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="MShpzfNrADaMvmqOsCBV-1" value="id: int (PK, AI)&#xa;username: varchar(250) (unique, index, not null)&#xa;password: text (not null)&#xa;is_active: bool (default True)&#xa;create_date: datetime (server_default now)&#xa;updated_date: datetime (onupdate now)" style="text;whiteSpace=wrap;html=1;spacingTop=1;spacing=4;spacingLeft=6;" vertex="1" parent="users">
+          <mxGeometry y="26" width="270" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="tokens" value="TokenModel" style="shape=swimlane;rounded=1;whiteSpace=wrap;html=1;container=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Helvetica;verticalAlign=bottom;align=center;" parent="1" vertex="1">
+          <mxGeometry x="717" y="307" width="290" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="MShpzfNrADaMvmqOsCBV-5" value="&lt;br&gt;id: int (PK, AI)&lt;br&gt;user_id: int (FK → users.id)&lt;br&gt;token: text (unique, not null)&lt;br&gt;expires_in: int (default 3600s)&lt;br&gt;create_date: datetime (server_default now)" style="shape=note;rounded=1;size=20;fillColor=none;strokeColor=#d6b656;fontSize=12;labelBackgroundColor=none;labelBorderColor=none;textShadow=0;whiteSpace=wrap;html=1;align=left;spacingLeft=8;spacingBottom=12;" vertex="1" parent="tokens">
+          <mxGeometry y="26" width="290" height="84" as="geometry" />
+        </mxCell>
+        <mxCell id="expenses" value="ExpenseModel" style="shape=swimlane;rounded=1;whiteSpace=wrap;html=1;container=1;childLayout=stackLayout;horizontal=1;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="640" y="623" width="390" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="MShpzfNrADaMvmqOsCBV-6" value="&lt;span style=&quot;font-size: 13px;&quot;&gt;id: int (PK, AI)&lt;/span&gt;&lt;br style=&quot;font-size: 13px;&quot;&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;user_id: int (FK → users.id, ondelete CASCADE, index, not null)&lt;/span&gt;&lt;br style=&quot;font-size: 13px;&quot;&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;description: varchar(50) (not null)&lt;/span&gt;&lt;br style=&quot;font-size: 13px;&quot;&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;amount: int (not null)&lt;/span&gt;&lt;br style=&quot;font-size: 13px;&quot;&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;create_date: datetime (server_default now)&lt;/span&gt;&lt;br style=&quot;font-size: 13px;&quot;&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;updated_date: datetime (onupdate now)&lt;/span&gt;" style="shape=note;whiteSpace=wrap;html=1;rounded=1;size=20;fillColor=none;strokeColor=#d6b656;fontSize=12;align=left;spacingLeft=6;" vertex="1" parent="expenses">
+          <mxGeometry y="30" width="390" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="MShpzfNrADaMvmqOsCBV-8" value="" style="shape=note;whiteSpace=wrap;html=1;rounded=1;size=20;fillColor=none;strokeColor=#d6b656;fontSize=12;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="270" y="443" width="360" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="MShpzfNrADaMvmqOsCBV-9" value="" style="edgeStyle=elbowEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;exitX=0.001;exitY=0.155;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.142;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="MShpzfNrADaMvmqOsCBV-8" target="MShpzfNrADaMvmqOsCBV-6">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="610" y="530" as="sourcePoint" />
+            <mxPoint x="710" y="430" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="240" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MShpzfNrADaMvmqOsCBV-11" value="" style="edgeStyle=elbowEdgeStyle;fontSize=12;html=1;endArrow=ERmandOne;rounded=0;exitX=0.007;exitY=0.185;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0;entryDx=360;entryDy=20;entryPerimeter=0;" edge="1" parent="1" source="MShpzfNrADaMvmqOsCBV-5" target="MShpzfNrADaMvmqOsCBV-8">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="610" y="530" as="sourcePoint" />
+            <mxPoint x="690" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
