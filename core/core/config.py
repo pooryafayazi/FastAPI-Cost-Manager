@@ -27,7 +27,8 @@ class Settings(BaseSettings):
     MAIL_STARTTLS: bool = False
     MAIL_SSL_TLS: bool = False
     USE_CREDENTIALS: bool = False
-
+    SENTRY_DSN : str = "https://2efbb533b31dc2272fa0c211bdd0afa5@sentry.hamravesh.com/8955"
+    
     model_config = SettingsConfigDict(env_file=".env")
 
 

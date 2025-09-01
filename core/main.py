@@ -32,7 +32,15 @@ from core.email_util import send_email
 
 from i18n.middleware import LanguageMiddleware
 from i18n.utils import _, get_current_lang
+import sentry_sdk
 
+
+sentry_sdk.init(
+    dsn=settings.SENTRY_DSN,
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for tracing.
+    traces_sample_rate=1.0,
+)
 
 
 """
@@ -175,6 +183,11 @@ async def initiate_task(background_tasks: BackgroundTasks):
 async def readiness():
     return JSONResponse(content="ok")
 
+
+@app.get("/sentry-debug")
+async def trigger_error():
+    division_by_zero = 1 / 0
+    
 
 # set up the cache backend inmemory (without redis)
 """
