@@ -170,6 +170,11 @@ async def initiate_task(background_tasks: BackgroundTasks):
     return JSONResponse(content={"detail": "task is done"})
 
 
+@app.get("/is-ready", status_code=200)
+async def readiness():
+    return JSONResponse(content="ok")
+
+
 # set up the cache backend inmemory (without redis)
 """
 cache_backend = InMemoryBackend()
