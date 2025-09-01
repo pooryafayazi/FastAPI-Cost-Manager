@@ -4,9 +4,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    SQLALCHEMY_DATABASE_URL: str
+    SQLALCHEMY_DATABASE_URL: str = "sqlite:///./:memory:"
     JWT_SECRET_KEY: str = "test"
-    REDIS_URL: str
+    REDIS_URL: str = "redis://redis:6379"
     COOKIE_ACCESS_NAME: ClassVar[str] = "access_token"
     COOKIE_REFRESH_NAME: ClassVar[str] = "refresh_token"
     ACCESS_MAX_AGE: ClassVar[int] = 5 * 60
